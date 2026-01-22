@@ -7,11 +7,11 @@ export default function Home() {
     <div className="page">
       <section className="hero_main">
         <div className="content">
-          <h1>Welcome To The New World</h1>
+          <h1>Welcome To The Future</h1>
 
           <p>
-            AI agents that actually bring value to businesses and elevate
-            workers productivity.
+            Intelligent AI agents that transform how businesses operate and
+            amplify human productivity.
           </p>
 
           <button className="cta_btn">Get started.</button>
