@@ -9,6 +9,7 @@ import { usePlanetMaterials } from "./hooks/usePlanetMaterials";
 import { usePlanetMeshes } from "./hooks/usePlanetMeshes";
 import { usePlanetAnimations } from "./hooks/usePlanetAnimations";
 import { setupPlanetResize } from "./hooks/usePlanetResize";
+import { useStarfield } from "./hooks/useStarfield";
 import { disposeResources } from "./utils/disposeResources";
 
 interface Planet3DProps {
@@ -21,6 +22,7 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
   const isMountedRef = useRef(true);
   const resourcesRef = useRef<{
     renderer?: THREE.WebGLRenderer;
+    scene?: THREE.Scene;
     earthMaterial?: THREE.ShaderMaterial;
     atmosphereMaterial?: THREE.ShaderMaterial;
     earthGeometry?: THREE.BufferGeometry;
@@ -28,6 +30,8 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
     dayTexture?: THREE.Texture;
     nightTexture?: THREE.Texture;
     specularCloudsTexture?: THREE.Texture;
+    stars?: THREE.Points;
+    starGeometry?: THREE.BufferGeometry;
   }>({});
 
   useEffect(() => {
@@ -45,12 +49,14 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       earthGeometry,
       atmosphereGeometry,
     } = usePlanetMeshes(materials);
+    const { stars, starGeometry } = useStarfield(scene);
 
     earthRef.current = earth;
     scene.add(earthGroup);
 
     resourcesRef.current = {
       renderer,
+      scene,
       earthMaterial: materials.earthMaterial,
       atmosphereMaterial: materials.atmosphereMaterial,
       earthGeometry,
@@ -58,6 +64,8 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       dayTexture: textures.dayTexture,
       nightTexture: textures.nightTexture,
       specularCloudsTexture: textures.specularCloudsTexture,
+      stars,
+      starGeometry,
     };
 
     const cleanupAnimations = usePlanetAnimations({
@@ -65,6 +73,7 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       camera,
       scene,
       renderer,
+      stars,
       isMounted: isMountedRef,
     });
 

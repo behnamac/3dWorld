@@ -9,6 +9,7 @@ interface AnimationSetup {
   camera: THREE.PerspectiveCamera;
   scene: THREE.Scene;
   renderer: THREE.WebGLRenderer;
+  stars?: THREE.Points;
   isMounted: React.MutableRefObject<boolean>;
 }
 
@@ -17,6 +18,7 @@ export const usePlanetAnimations = ({
   camera,
   scene,
   renderer,
+  stars,
   isMounted,
 }: AnimationSetup) => {
   gsap.registerPlugin(ScrollTrigger);
@@ -60,6 +62,10 @@ export const usePlanetAnimations = ({
   const animate = (time: number) => {
     if (!isMounted.current) return;
     earth.rotation.y = time * ROTATION_SPEED;
+    if (stars) {
+      const material = stars.material as THREE.ShaderMaterial;
+      material.uniforms.time.value = time;
+    }
     renderer.render(scene, camera);
   };
 

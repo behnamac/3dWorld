@@ -39,8 +39,10 @@ export const usePlanetScene = (canvas: HTMLCanvasElement): SceneSetup => {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(size.width, size.height);
   renderer.setPixelRatio(size.pixelRatio);
-  renderer.setClearColor(0x000000, 0);
+  renderer.setClearColor(0x000000, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+  scene.background = new THREE.Color(0x000000);
 
   return { scene, camera, renderer, size };
 };

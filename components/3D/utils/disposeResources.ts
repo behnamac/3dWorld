@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 interface Resources {
   renderer?: THREE.WebGLRenderer;
+  scene?: THREE.Scene;
   earthMaterial?: THREE.ShaderMaterial;
   atmosphereMaterial?: THREE.ShaderMaterial;
   earthGeometry?: THREE.BufferGeometry;
@@ -9,6 +10,8 @@ interface Resources {
   dayTexture?: THREE.Texture;
   nightTexture?: THREE.Texture;
   specularCloudsTexture?: THREE.Texture;
+  stars?: THREE.Points;
+  starGeometry?: THREE.BufferGeometry;
 }
 
 export const disposeResources = (resources: Resources) => {
@@ -44,5 +47,17 @@ export const disposeResources = (resources: Resources) => {
 
   if (resources.specularCloudsTexture) {
     resources.specularCloudsTexture.dispose();
+  }
+
+  if (resources.stars && resources.scene) {
+    resources.scene.remove(resources.stars);
+    resources.stars.geometry.dispose();
+    if (resources.stars.material instanceof THREE.Material) {
+      resources.stars.material.dispose();
+    }
+  }
+
+  if (resources.starGeometry) {
+    resources.starGeometry.dispose();
   }
 };
