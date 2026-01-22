@@ -5,9 +5,9 @@ interface StarfieldSetup {
   starGeometry: THREE.BufferGeometry;
 }
 
-const STAR_COUNT = 5000;
+const STAR_COUNT = 15000;
 const STAR_RADIUS = 1000;
-const TWINKLE_SPEED = 0.3;
+const TWINKLE_SPEED = 0.5;
 
 const createStarGeometry = (): THREE.BufferGeometry => {
   const geometry = new THREE.BufferGeometry();
@@ -48,32 +48,40 @@ const createStarMaterial = (): THREE.ShaderMaterial => {
       uniform float time;
       uniform float twinkleSpeed;
       varying float vOpacity;
-      varying float vSize;
 
       void main() {
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (300.0 / -mvPosition.z);
+        vec4 projected = projectionMatrix * mvPosition;
         
-        float twinkle = sin(time * twinkleSpeed + phase * 3.14159) * 0.5 + 0.5;
-        vOpacity = 0.3 + twinkle * 0.7;
-        vSize = size * (0.5 + twinkle * 0.5);
+        gl_PointSize = size * (1200.0 / max(-mvPosition.z, 0.1));
         
-        gl_Position = projectionMatrix * mvPosition;
+        float twinkle = sin(time * twinkleSpeed + phase) * 0.4 + 0.6;
+        vOpacity = twinkle;
+        
+        gl_Position = projected;
       }
     `,
     fragmentShader: `
+      precision mediump float;
       varying float vOpacity;
-      varying float vSize;
 
       void main() {
-        float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
-        float alpha = 1.0 - smoothstep(0.0, 0.5, distanceToCenter);
+        vec2 center = gl_PointCoord - vec2(0.5);
+        float dist = length(center);
+        
+        if (dist > 0.5) {
+          discard;
+        }
+        
+        float alpha = 1.0 - smoothstep(0.0, 0.5, dist * 2.0);
         gl_FragColor = vec4(1.0, 1.0, 1.0, alpha * vOpacity);
       }
     `,
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
+    depthTest: false,
+    vertexColors: false,
   });
 };
 
@@ -81,6 +89,9 @@ export const useStarfield = (scene: THREE.Scene): StarfieldSetup => {
   const geometry = createStarGeometry();
   const material = createStarMaterial();
   const stars = new THREE.Points(geometry, material);
+
+  stars.frustumCulled = false;
+  stars.renderOrder = -1000;
 
   scene.add(stars);
 
@@ -95,5 +106,7 @@ export const updateStarfield = (
   time: number,
 ) => {
   const material = stars.material as THREE.ShaderMaterial;
-  material.uniforms.time.value = time;
+  if (material && material.uniforms && material.uniforms.time) {
+    material.uniforms.time.value = time;
+  }
 };

@@ -11,6 +11,9 @@ interface AnimationSetup {
   renderer: THREE.WebGLRenderer;
   stars?: THREE.Points;
   isMounted: React.MutableRefObject<boolean>;
+  isDragging?: React.MutableRefObject<boolean>;
+  manualRotation?: React.MutableRefObject<number>;
+  baseRotation?: React.MutableRefObject<number>;
 }
 
 export const usePlanetAnimations = ({
@@ -20,6 +23,9 @@ export const usePlanetAnimations = ({
   renderer,
   stars,
   isMounted,
+  isDragging,
+  manualRotation,
+  baseRotation,
 }: AnimationSetup) => {
   gsap.registerPlugin(ScrollTrigger);
 
@@ -58,13 +64,30 @@ export const usePlanetAnimations = ({
     );
 
   gsap.ticker.lagSmoothing(0);
+  let autoRotationTime = 0;
+  let wasDragging = false;
 
   const animate = (time: number) => {
     if (!isMounted.current) return;
-    earth.rotation.y = time * ROTATION_SPEED;
-    if (stars) {
+
+    if (isDragging && isDragging.current) {
+      wasDragging = true;
+      if (manualRotation && manualRotation.current !== undefined) {
+        earth.rotation.y = manualRotation.current;
+      }
+    } else {
+      if (wasDragging && baseRotation && baseRotation.current !== undefined) {
+        autoRotationTime = baseRotation.current / ROTATION_SPEED - time;
+        wasDragging = false;
+      }
+      earth.rotation.y = (time + autoRotationTime) * ROTATION_SPEED;
+    }
+
+    if (stars && stars.material) {
       const material = stars.material as THREE.ShaderMaterial;
-      material.uniforms.time.value = time;
+      if (material.uniforms && material.uniforms.time) {
+        material.uniforms.time.value = time;
+      }
     }
     renderer.render(scene, camera);
   };

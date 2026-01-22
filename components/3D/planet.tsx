@@ -9,6 +9,7 @@ import { usePlanetMaterials } from "./hooks/usePlanetMaterials";
 import { usePlanetMeshes } from "./hooks/usePlanetMeshes";
 import { usePlanetAnimations } from "./hooks/usePlanetAnimations";
 import { setupPlanetResize } from "./hooks/usePlanetResize";
+import { setupPlanetDrag } from "./hooks/usePlanetDrag";
 import { useStarfield } from "./hooks/useStarfield";
 import { disposeResources } from "./utils/disposeResources";
 
@@ -20,6 +21,9 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const earthRef = useRef<THREE.Mesh | null>(null);
   const isMountedRef = useRef(true);
+  const isDraggingRef = useRef(false);
+  const manualRotationRef = useRef(0);
+  const baseRotationRef = useRef(0);
   const resourcesRef = useRef<{
     renderer?: THREE.WebGLRenderer;
     scene?: THREE.Scene;
@@ -41,6 +45,9 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
     isMountedRef.current = true;
 
     const { scene, camera, renderer, size } = usePlanetScene(canvas);
+    
+    const { stars, starGeometry } = useStarfield(scene);
+    
     const textures = usePlanetTextures(renderer);
     const materials = usePlanetMaterials(textures);
     const {
@@ -49,7 +56,6 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       earthGeometry,
       atmosphereGeometry,
     } = usePlanetMeshes(materials);
-    const { stars, starGeometry } = useStarfield(scene);
 
     earthRef.current = earth;
     scene.add(earthGroup);
@@ -75,6 +81,17 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       renderer,
       stars,
       isMounted: isMountedRef,
+      isDragging: isDraggingRef,
+      manualRotation: manualRotationRef,
+      baseRotation: baseRotationRef,
+    });
+
+    const cleanupDrag = setupPlanetDrag({
+      earth,
+      canvas,
+      isDragging: isDraggingRef,
+      manualRotation: manualRotationRef,
+      baseRotation: baseRotationRef,
     });
 
     const cleanupResize = setupPlanetResize({ camera, renderer, size });
@@ -82,6 +99,7 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
     return () => {
       isMountedRef.current = false;
       cleanupAnimations();
+      cleanupDrag();
       cleanupResize();
       disposeResources(resourcesRef.current);
     };
