@@ -10,7 +10,6 @@ import { usePlanetMeshes } from "./hooks/usePlanetMeshes";
 import { usePlanetAnimations } from "./hooks/usePlanetAnimations";
 import { setupPlanetResize } from "./hooks/usePlanetResize";
 import { setupPlanetDrag } from "./hooks/usePlanetDrag";
-import { useStarfield } from "./hooks/useStarfield";
 import { disposeResources } from "./utils/disposeResources";
 
 interface Planet3DProps {
@@ -34,8 +33,6 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
     dayTexture?: THREE.Texture;
     nightTexture?: THREE.Texture;
     specularCloudsTexture?: THREE.Texture;
-    stars?: THREE.Points;
-    starGeometry?: THREE.BufferGeometry;
   }>({});
 
   useEffect(() => {
@@ -45,8 +42,6 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
     isMountedRef.current = true;
 
     const { scene, camera, renderer, size } = usePlanetScene(canvas);
-    
-    const { stars, starGeometry } = useStarfield(scene);
     
     const textures = usePlanetTextures(renderer);
     const materials = usePlanetMaterials(textures);
@@ -70,8 +65,6 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       dayTexture: textures.dayTexture,
       nightTexture: textures.nightTexture,
       specularCloudsTexture: textures.specularCloudsTexture,
-      stars,
-      starGeometry,
     };
 
     const cleanupAnimations = usePlanetAnimations({
@@ -79,7 +72,6 @@ const Planet3D: React.FC<Planet3DProps> = ({ className = "planet-3D" }) => {
       camera,
       scene,
       renderer,
-      stars,
       isMounted: isMountedRef,
       isDragging: isDraggingRef,
       manualRotation: manualRotationRef,

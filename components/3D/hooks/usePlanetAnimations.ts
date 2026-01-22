@@ -9,7 +9,6 @@ interface AnimationSetup {
   camera: THREE.PerspectiveCamera;
   scene: THREE.Scene;
   renderer: THREE.WebGLRenderer;
-  stars?: THREE.Points;
   isMounted: React.MutableRefObject<boolean>;
   isDragging?: React.MutableRefObject<boolean>;
   manualRotation?: React.MutableRefObject<number>;
@@ -21,7 +20,6 @@ export const usePlanetAnimations = ({
   camera,
   scene,
   renderer,
-  stars,
   isMounted,
   isDragging,
   manualRotation,
@@ -83,12 +81,6 @@ export const usePlanetAnimations = ({
       earth.rotation.y = (time + autoRotationTime) * ROTATION_SPEED;
     }
 
-    if (stars && stars.material) {
-      const material = stars.material as THREE.ShaderMaterial;
-      if (material.uniforms && material.uniforms.time) {
-        material.uniforms.time.value = time;
-      }
-    }
     renderer.render(scene, camera);
   };
 

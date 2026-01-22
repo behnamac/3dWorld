@@ -5,8 +5,8 @@ interface StarfieldSetup {
   starGeometry: THREE.BufferGeometry;
 }
 
-const STAR_COUNT = 15000;
-const STAR_RADIUS = 1000;
+const STAR_COUNT = 20000;
+const STAR_RADIUS = 2000;
 const TWINKLE_SPEED = 0.5;
 
 const createStarGeometry = (): THREE.BufferGeometry => {
@@ -25,7 +25,7 @@ const createStarGeometry = (): THREE.BufferGeometry => {
     positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
     positions[i3 + 2] = radius * Math.cos(phi);
 
-    sizes[i] = Math.random() * 2 + 0.5;
+    sizes[i] = Math.random() * 4 + 2;
     phases[i] = Math.random() * Math.PI * 2;
   }
 
@@ -51,14 +51,12 @@ const createStarMaterial = (): THREE.ShaderMaterial => {
 
       void main() {
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vec4 projected = projectionMatrix * mvPosition;
+        gl_Position = projectionMatrix * mvPosition;
         
-        gl_PointSize = size * (1200.0 / max(-mvPosition.z, 0.1));
+        gl_PointSize = size * (3000.0 / -mvPosition.z);
         
-        float twinkle = sin(time * twinkleSpeed + phase) * 0.4 + 0.6;
+        float twinkle = sin(time * twinkleSpeed + phase) * 0.3 + 0.7;
         vOpacity = twinkle;
-        
-        gl_Position = projected;
       }
     `,
     fragmentShader: `
@@ -80,8 +78,7 @@ const createStarMaterial = (): THREE.ShaderMaterial => {
     transparent: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
-    depthTest: false,
-    vertexColors: false,
+    depthTest: true,
   });
 };
 
