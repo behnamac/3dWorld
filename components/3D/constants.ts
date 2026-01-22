@@ -1,0 +1,12 @@
+export const ATMOSPHERE_DAY_COLOR = "#4a96e8";
+export const ATMOSPHERE_TWILIGHT_COLOR = "#1950E5";
+export const EARTH_RADIUS = 2;
+export const ATMOSPHERE_SCALE = 1.13;
+export const CAMERA_FOV = 15;
+export const CAMERA_NEAR = 0.1;
+export const CAMERA_FAR = 10000;
+export const INITIAL_CAMERA_POSITION = { x: 0, y: 2.15, z: 4.5 };
+export const ROTATION_SPEED = 0.2;
+export const SCROLL_SCRUB = 3;
+export const ANIMATION_DURATION = 2;
+export const SUN_SPHERICAL_CONFIG = { radius: 1, phi: Math.PI * 0.48, theta: -1.8 };
